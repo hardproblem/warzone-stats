@@ -1,10 +1,14 @@
 module.exports = {
     addUserToChannel,
     removeUserFromChannel,
-    schedule,
-    unschedule,
+    scheduleLeaderboard,
+    unscheduleLeaderboard,
     getAllUsers,
-    getAllSchedules,
+    getAllLeaderboardSchedules,
+    addStatsToSnapshot,
+    addSnapshot,
+    getSnapshotTimes,
+    getLastSnapshotTime,
     init
 };
 
@@ -14,7 +18,7 @@ let _db = null;
 
 async function init() {
     const client = await MongoClient.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
-    _db = client.db('cod-daily-stats');
+    _db = client.db(process.env.MONGO_DBNAME);
 }
 
 async function findChannel(channelId) {
@@ -60,21 +64,79 @@ async function getAllUsers(channelId) {
     return channel.users;
 }
 
-async function schedule(channelId, cron, time) {
-    await _db.collection('schedules').updateOne({ channelId: channelId }, {
+async function scheduleLeaderboard(channelId, cron) {
+    await _db.collection('leaderboards').updateOne({ channelId: channelId }, {
         $set: {
             cron: cron,
-            time: time
+            snapshots: []
         }
     }, {
         upsert: true
     });
 }
 
-async function unschedule(channelId) {
-    await _db.collection('schedules').deleteOne({ channelId: channelId });
+async function addSnapshot(channelId, timestamp, users) {
+    await _db.collection('leaderboards').updateOne({ channelId: channelId }, {
+        $push: {
+            snapshots: { timestamp: timestamp, users: users}
+        }
+    });
+ }
+
+async function addStatsToSnapshot(channelId, user, stats, timestamp) {
+    await _db.collection('leaderboards').updateOne(
+        { 
+            // filter by channel and timestamp 
+            channelId: channelId, 
+            'snapshots.timestamp': timestamp
+        }, 
+        {
+            // uses mongodbs arrayFilters
+            // $[t] => timestamp match
+            // $[u] => username match
+            // add a new stats field to the user object
+            // needed for deep nested array element matches
+            $set: {
+               'snapshots.$[t].players.$[u].stats': stats
+            },
+        },
+        {
+            arrayFilters: [
+                // snapshots => timestamp must match
+                {'t.timestamp': timestamp},
+                // snapshots => users => username & platform must match
+                { $and: 
+                    [
+                        {'u.username': user.username},
+                        {'u.platform': user.platform}
+                    ] 
+                }
+            ],
+            multi: true
+        }
+    );
 }
 
-async function getAllSchedules() {
-    return await _db.collection('schedules').find({});
+async function getSnapshotTimes(channelId) {
+    let ss = await _db.collection('leaderboards').findOne({ channelId: channelId }, 
+        { projection: { 'snapshots.timestamp': 1 } }
+    );
+    return ss.snapshots.map(x => x.timestamp);
+}
+
+async function getLastSnapshotTime(channelId) {
+    let timestamps = await getSnapshotTimes(channelId);
+    return timestamps.reduce(function (a, b) { return new Date(a) > new Date(b) ? a : b; }, null);
+}
+
+async function unscheduleLeaderboard(channelId) {
+    await _db.collection('leaderboards').updateOne({ channelId: channelId }, {
+        $set: {
+            cron: null
+        }
+    });
+}
+
+async function getAllLeaderboardSchedules() {
+    return await _db.collection('leaderboards').find({ cron: { $ne: null } }, { projection: { cron: 1, channelId: 1 } });
 }
