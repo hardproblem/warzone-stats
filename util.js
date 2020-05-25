@@ -4,8 +4,12 @@ module.exports = {
     escapeMarkdown,
     parseDuration,
     isValidCron: require('cron-validator').isValidCron,
+    prevCronHit,
+    nextCronHit,
     shuffle
 };
+
+const { parseExpression } = require('cron-parser');
 
 function tokenize(msg) {
     return msg.toLowerCase().split(/ +/);
@@ -40,6 +44,14 @@ function parseDuration(d) {
             }
         }(match[2])
     }
+}
+
+function prevCronHit(exp) {
+    return parseExpression(exp).prev()._date;
+}
+
+function nextCronHit(exp) {
+    return parseExpression(exp).next()._date;
 }
 
 function shuffle(arr) {
