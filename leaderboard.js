@@ -38,16 +38,13 @@ function createJob(channelId, cron) {
         let users = await db.getAllUsers(channelId);
         let timestamp = moment();
         let duration = await getDuration(channelId, cron, timestamp);
-
-        console.log('starting');
         
+        channel.send(`**Season finished!**\nCollecting stats and generating the leaderboard now.\nView it here: https://cod-daily-stats.herokuapp.com/leaderboards/${channelId}`);
         await db.addSnapshot(channelId, timestamp.toISOString(), users);
         await Promise.all(users.map(u => getStats(u.username, u.platform, duration, channelId, timestamp)));
 
-        console.log("promises finished");
-        
         let channel = client.channels.cache.get(channelId);
-        channel.send('A new leaderboard is ready for viewing!'); 
+        channel.send(`Last season's leaderboard has finished generating! View it here: https://cod-daily-stats.herokuapp.com/leaderboards/${channelId}`);
     });
     jobs[channelId] = job;
 }
@@ -65,15 +62,15 @@ async function getDuration(channelId, cron, timestamp) {
     if (!lastTimestamp) {
         lastTimestamp = prevCronHit(cron);
     }
-    // return { value: timestamp.diff(lastTimestamp, 'hours'), unit: 'hour' };
-    return { value: 2, unit: 'day' };
+    return { value: timestamp.diff(lastTimestamp, 'hours'), unit: 'hour' };
 }
 
 async function getStats(username, platform, duration, channelId, timestamp, tryn=0) {
-    console.log('promise running')
+    // retry timeouts
     let tryWaits = new Array(3).fill([15000, 30000, 60000, 90000, 120000]).flat().sort((a, b) => a - b);
     let promise = async(res, rej) => {
         try {
+            // fetch stats and snapshot
             let data = await generateStats(platform, username, duration);
             await db.addStatsToSnapshot(channelId, username, platform, data, timestamp.toISOString());
             res();
@@ -82,6 +79,7 @@ async function getStats(username, platform, duration, channelId, timestamp, tryn
                 // if no account found, resolve promise as-is
                 res();
             } else {
+                // get next timeout
                 let timeout = tryn < tryWaits.length ? tryWaits[tryn] : 120000;
                 // retry if some other error occured
                 setTimeout(async() => {

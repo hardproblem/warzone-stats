@@ -40,7 +40,7 @@ const commands = {
     'leaderboard-enable': {
         method: enableLeaderboard,
         syntax: 'leaderboard-enable \'<cronjob>\'',
-        help: 'Generates a leaderboard every time the cronjob runs',
+        help: 'Generates a leaderboard based on performance between cronjob runs',
         rx: /^!cds leaderboard-enable '([*\//0-9- ]+)'?$/
     },
     'leaderboard-disable': {
