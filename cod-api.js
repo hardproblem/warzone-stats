@@ -1,9 +1,28 @@
 module.exports = {
-    getRecentMatches
+    getRecentMatches,
+    playerExists
 };
 
 const moment = require('moment');
 const fetch = require('node-fetch');
+
+async function request(url) {
+    return await fetch(url, {
+        "credentials": "include",
+        "headers": {
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Language": "en"
+        },
+        "method": "GET",
+        "mode": "cors"
+    });
+}
+
+async function playerExists(platform, username) {
+    let url = `https://api.tracker.gg/api/v2/warzone/standard/profile/${platform}/${encodeURIComponent(username)}`;
+    let res = await request(url);
+    return res.ok;
+}
 
 async function getRecentMatches(platform, username, duration) {
     let now = moment();
@@ -16,15 +35,7 @@ async function getRecentMatches(platform, username, duration) {
 
         // get matches from tracker.gg api
         let url = `https://api.tracker.gg/api/v1/warzone/matches/${platform}/${encodeURIComponent(username)}?type=wz&next=${next}`;
-        let res = await fetch(url, {
-            "credentials": "include",
-            "headers": {
-                "Accept": "application/json, text/plain, */*",
-                "Accept-Language": "en"
-            },
-            "method": "GET",
-            "mode": "cors"
-        }).then(res => res.json());
+        let res = await request(url).then(r => r.json());
 
         if (res.errors) {
             // return recentMatches if previous calls were successful
