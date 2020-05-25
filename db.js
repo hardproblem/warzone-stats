@@ -83,7 +83,7 @@ async function addSnapshot(channelId, timestamp, users) {
     });
  }
 
-async function addStatsToSnapshot(channelId, user, stats, timestamp) {
+async function addStatsToSnapshot(channelId, username, platform, stats, timestamp) {
     await _db.collection('leaderboards').updateOne(
         { 
             // filter by channel and timestamp 
@@ -97,7 +97,7 @@ async function addStatsToSnapshot(channelId, user, stats, timestamp) {
             // add a new stats field to the user object
             // needed for deep nested array element matches
             $set: {
-               'snapshots.$[t].players.$[u].stats': stats
+               'snapshots.$[t].users.$[u].stats': stats
             },
         },
         {
@@ -107,8 +107,8 @@ async function addStatsToSnapshot(channelId, user, stats, timestamp) {
                 // snapshots => users => username & platform must match
                 { $and: 
                     [
-                        {'u.username': user.username},
-                        {'u.platform': user.platform}
+                        {'u.username': username},
+                        {'u.platform': platform}
                     ] 
                 }
             ],
