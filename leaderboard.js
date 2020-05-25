@@ -38,12 +38,16 @@ function createJob(channelId, cron) {
         let users = await db.getAllUsers(channelId);
         let timestamp = moment();
         let duration = await getDuration(channelId, cron, timestamp);
-        
-        channel.send(`**Season finished!**\nCollecting stats and generating the leaderboard now.\nView it here: https://cod-daily-stats.herokuapp.com/leaderboards/${channelId}`);
-        await db.addSnapshot(channelId, timestamp.toISOString(), users);
-        await Promise.all(users.map(u => getStats(u.username, u.platform, duration, channelId, timestamp)));
 
         let channel = client.channels.cache.get(channelId);
+        
+        // send end of season message
+        channel.send(`**Season finished!**\nCollecting stats and generating the leaderboard now.\nView it here: https://cod-daily-stats.herokuapp.com/leaderboards/${channelId}`);
+        // create a placeholder snapshot
+        await db.addSnapshot(channelId, timestamp.toISOString(), users);
+        // fetch stats for all users and add to snapshot
+        await Promise.all(users.map(u => getStats(u.username, u.platform, duration, channelId, timestamp)));
+        // notify that all stats have been fetched
         channel.send(`Last season's leaderboard has finished generating! View it here: https://cod-daily-stats.herokuapp.com/leaderboards/${channelId}`);
     });
     jobs[channelId] = job;
