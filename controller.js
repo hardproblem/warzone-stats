@@ -123,10 +123,12 @@ async function registerUser(msg) {
     let username = tokens[3];
     let platform = tokens[2];
 
-    if (await playerExists(platform, username))
-
-    await db.addUserToChannel(msg.channel.id, username, platform);
-    msg.reply(`**${username}** *(${platform})* has been registered!`);    
+    if (await playerExists(platform, username)) {
+        await db.addUserToChannel(msg.channel.id, username, platform);
+        msg.reply(`**${username}** *(${platform})* has been registered!`);        
+    } else {
+        msg.reply(`**${username}** *(${platform})* does not exist!`);    
+    }
 }
 
 async function unregisterUser(msg) {
