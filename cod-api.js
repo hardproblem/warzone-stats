@@ -1,5 +1,5 @@
 module.exports = {
-    getRecentMatches,
+    getMatches,
     playerExists
 };
 
@@ -24,8 +24,7 @@ async function playerExists(platform, username) {
     return res.ok;
 }
 
-async function getRecentMatches(platform, username, duration) {
-    let now = moment();
+async function getMatches(platform, username, start, end) {
     let recentMatches = [];
 
     let next = 'null';
@@ -54,7 +53,7 @@ async function getRecentMatches(platform, username, duration) {
         matches = matches.filter(x => ['br_89', 'br_25'].includes(x.attributes.modeId));
 
         // filter to only today's matches
-        let filteredMatches = matches.filter(x => now.diff(x.metadata.timestamp, duration.unit) < duration.value);
+        let filteredMatches = matches.filter(x => moment(x.metadata.timestamp).isAfter(start) && moment(x.metadata.timestamp).isBefore(end));
         
         // append filtered matches to todays list
         recentMatches.push(...filteredMatches);

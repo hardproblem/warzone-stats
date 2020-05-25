@@ -3,14 +3,14 @@ const bot = new discord.Client();
 
 const db = require('./db');
 const controller = require('./controller');
-const scheduler = require('./scheduler');
+const leaderboard = require('./leaderboard');
 
 init();
 
 // run all setup tasks and then start discord bot
 async function init() {
     await db.init();
-    await scheduler.init(bot);
+    await leaderboard.init(bot);
     await initBot();    
 }
 

@@ -2,8 +2,9 @@ module.exports = controller;
 
 const db = require('./db');
 const { sendStats } = require('./stats');
+const { playerExists } = require('./cod-api');
 const util = require('./util');
-const scheduler = require('./scheduler');
+const leaderboard = require('./leaderboard');
 
 const commands = {
     'stats': { 
@@ -36,17 +37,17 @@ const commands = {
         help: 'Display solo stats',
         rx: /^!cds single (psn|atvi) [0-9A-Za-z#_-]+( ([0-9]+)([h|d|w|m]))?$/
     },
-    'schedule': {
-        method: scheduleStats,
-        syntax: 'schedule \'<cronjob>\' [time:3h|3d|1w|2m:1d]',
-        help: 'Schedule automatic stats posting',
-        rx: /^!cds schedule '[*\//0-9- ]+'( ([0-9]+)([h|d|w|m]))?$/
+    'leaderboard-enable': {
+        method: enableLeaderboard,
+        syntax: 'leaderboard-enable \'<cronjob>\'',
+        help: 'Generates a leaderboard every time the cronjob runs',
+        rx: /^!cds leaderboard-enable '([*\//0-9- ]+)'?$/
     },
-    'unschedule': {
-        method: unscheduleStats,
-        syntax: 'unschedule',
-        help: 'Unschedule automatic stats posting',
-        rx: /^!cds unschedule$/
+    'leaderboard-disable': {
+        method: disableLeaderboard,
+        syntax: 'leaderboard-disable',
+        help: 'Disable leaderboard',
+        rx: /^!cds leaderboard-disable$/
     },
     'help': {
         method: help,
@@ -119,38 +120,38 @@ async function getUsers(msg) {
 
 async function registerUser(msg) {
     let tokens = util.tokenize(msg.content);
-    let u = {
-        username: tokens[3],
-        platform: tokens[2]
-    }
+    let username = tokens[3];
+    let platform = tokens[2];
 
-    await db.addUserToChannel(msg.channel.id, u.username, u.platform);
-    msg.reply(`**${u.username}** *(${u.platform})* has been registered!`);    
+    if (await playerExists(platform, username))
+
+    await db.addUserToChannel(msg.channel.id, username, platform);
+    msg.reply(`**${username}** *(${platform})* has been registered!`);    
 }
 
 async function unregisterUser(msg) {
     let tokens = util.tokenize(msg.content);
-    await db.removeUserFromChannel(msg.channel.id, tokens[3], tokens[2]);
-    msg.reply(`**${util.escapeMarkdown(tokens[3])}** *(${tokens[2]})* has been unregistered!`);
+    let username = tokens[3];
+    let platform = tokens[2];
+
+    await db.removeUserFromChannel(msg.channel.id, username, platform);
+    msg.reply(`**${util.escapeMarkdown(username)}** *(${platform})* has been unregistered!`);
 }
 
 async function singleStats(msg) {
-    let tokens = util.tokenize(msg.content);
+    let tokens = util.tokenize(msg.content);   
+    let username = tokens[3];
+    let platform = tokens[2];
     let duration = util.parseDuration(tokens[4]);
-    
-    let u = {
-        username: tokens[3],
-        platform: tokens[2]
-    };
 
-    let msgObj = await msg.reply(`Fetching stats for **${util.escapeMarkdown(u.username)}** (${u.platform})...`);
+    let msgObj = await msg.reply(`Fetching stats for **${util.escapeMarkdown(username)}** (${platform})...`);
     await sendStats(u, 0, msgObj, duration)(); 
 }
 
-async function scheduleStats(msg) {
-    let rx = /^!cds schedule '([*\//0-9- ]+)'( ([0-9]+)([h|d|w|m]))?/;
+async function enableLeaderboard(msg) {
+    let rx = commands['leaderboard-enable'].rx;
     let match = msg.content.match(rx);
-    let cron = match[1], time = match[2].trim();
+    let cron = match[1];
     
     try {
         // check if cron is valid
@@ -160,16 +161,17 @@ async function scheduleStats(msg) {
         }
 
         // schedule message
-        await scheduler.schedule(msg.channel.id, cron, time);
-        msg.reply('Stats scheduled!')
+        await leaderboard.enable(msg.channel.id, cron);
+        let nextHit = util.nextCronHit(cron);
+        msg.reply(`Leaderboard enabled! Will be updated next on ${ nextHit.format('DD MMM, YYYY') } at ${ nextHit.format('hh:mma') } UTC.`);
     } catch (e) {
         msg.reply(e);
     }
 }
 
-async function unscheduleStats(msg) {
-    await scheduler.unschedule(msg.channel.id);
-    msg.reply('Stats unscheduled!');
+async function disableLeaderboard(msg) {
+    await leaderboard.disable(msg.channel.id);
+    msg.reply('Leaderboard disabled!');
 }
 
 async function help(msg) {

@@ -3,7 +3,7 @@ module.exports = {
     generateStats
 };
 
-const getRecentMatches = require('./cod-api').getRecentMatches;
+const { getMatches } = require('./cod-api');
 const util = require('./util');
 
 const moment = require('moment');
@@ -45,8 +45,8 @@ function calculateStats(matches) {
     return statValues;
 }
 
-async function generateStats(platform, username, duration) {
-    let matches = await getRecentMatches(platform, username, duration);
+async function generateStats(platform, username, start, end) {
+    let matches = await getMatches(platform, username, start, end);
     return calculateStats(matches);
 }
 
@@ -54,7 +54,8 @@ async function generateStats(platform, username, duration) {
 function sendStats(u, tryn, msgObj, duration, err='') {
     // timeout durations for each retry
     let tryWaits = new Array(3).fill([5000, 10000, 30000, 60000, 90000]).flat().sort((a, b) => a - b);
-    
+    let start = moment().subtract(duration.value, duration.unit), end = moment();
+
     // returns a function that can be passed to setTimeout
     return async function() {
         // if retried max times, just stop
@@ -65,7 +66,7 @@ function sendStats(u, tryn, msgObj, duration, err='') {
 
         try {
             // try and send stats
-            let stats = await generateStats(u.platform, u.username, duration);
+            let stats = await generateStats(u.platform, u.username, start, end);
             let m = util.pprint(util.escapeMarkdown(username), stats, duration);
 
             // edit original message
