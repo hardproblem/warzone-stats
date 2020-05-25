@@ -1,5 +1,6 @@
 module.exports = {
-    sendStats
+    sendStats,
+    generateStats
 };
 
 const getRecentMatches = require('./cod-api').getRecentMatches;
@@ -44,10 +45,9 @@ function calculateStats(matches) {
     return statValues;
 }
 
-async function getStats(platform, username, duration) {
+async function generateStats(platform, username, duration) {
     let matches = await getRecentMatches(platform, username, duration);
-    let stats = calculateStats(matches);
-    return util.pprint(util.escapeMarkdown(username), stats, duration);
+    return calculateStats(matches);
 }
 
 // timed-recursive function
@@ -65,7 +65,8 @@ function sendStats(u, tryn, msgObj, duration, err='') {
 
         try {
             // try and send stats
-            let m = await getStats(u.platform, u.username, duration);
+            let stats = await generateStats(u.platform, u.username, duration);
+            let m = util.pprint(util.escapeMarkdown(username), stats, duration);
 
             // edit original message
             await msgObj.edit(m);
