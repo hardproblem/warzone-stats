@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Warzone Leaderboard</title>
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+        <div class="header">
+            <h1>Warzone Stats Bot</h1>
+            <div class="social">
+                <a href="https://github.com/haroon96/cod-daily-stats" target='_blank'>
+                    <img src="/assets/GitHub-Mark-64px.png" alt="GitHub">
+                </a>
+            </div>
+        </div>
+
+        <div id="leaderboard" class="leaderboard">
+            <h1 class="center">Leaderboard</h1>
+            <div class="right">
+                <select>
+                    <option v-for="ts in timestamps">{{ ts }}</option>
+                </select>    
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 2%" class="center">#</th>
+                        <th style="width: 20%" class="center">Player</th>
+                        <th :class="{ 'highlight': sortBy == 'Matches' }" @click="sort('Matches')" style="width: 5%" class="center">Matches</th>
+                        <th :class="{ 'highlight': sortBy == 'K/D' }" @click="sort('K/D')" style="width: 5%" class="center">K/D</th>
+                        <th :class="{ 'highlight': sortBy == 'Kills' }" @click="sort('Kills')" style="width: 5%" class="center">Kills</th>
+                        <th :class="{ 'highlight': sortBy == 'Deaths' }" @click="sort('Deaths')" style="width: 5%" class="center">Deaths</th>
+                        <th :class="{ 'highlight': sortBy == 'Score' }" @click="sort('Score')" style="width: 5%" class="center">Score</th>
+                        <th :class="{ 'highlight': sortBy == 'Headshots' }" @click="sort('Headshots')" style="width: 5%" class="center">Headshots</th>
+                        <th :class="{ 'highlight': sortBy == 'Assists' }" @click="sort('Assists')" style="width: 5%" class="center">Assists</th>
+                        <th :class="{ 'highlight': sortBy == 'Executions' }" @click="sort('Executions')" style="width: 5%" class="center">Executions</th>
+                        <th :class="{ 'highlight': sortBy == 'Vehicles Destroyed' }" @click="sort('Vehicles Destroyed')" style="width: 5%" class="center" title="Vehicles Destroyed">V/D</th>
+                        <th :class="{ 'highlight': sortBy == 'Team Wipes' }" @click="sort('Team Wipes')" style="width: 5%" class="center" title="Team Wipes">T/W</th>
+                        <th :class="{ 'highlight': sortBy == 'Total XP' }" @click="sort('Total XP')" style="width: 5%" class="center">XP</th>
+                        <th :class="{ 'highlight': sortBy == 'Time Played' }" @click="sort('Time Played')" style="width: 5%" class="center">Time</th>
+                    </tr>
+                </thead>
+                <tbody name="table-row" is="transition-group">
+                    <tr v-for="(row, index) in filteredStats" :key="index">
+                        <td class="center">{{ index + 1 }}</td>
+                        <td>
+                            <div class="flex flex-v-center">
+                                <span v-html="getIcon(row.platform)" class="platform-icon"></span>
+                                <span>{{ row.username }}</span>
+                            </div>
+                        </td>
+                        <td class="center" :class="{ 'highlight': sortBy == 'Matches' }">{{ row.stats['Matches'] }}</td>
+                        <td class="center" :class="{ 'highlight': sortBy == 'K/D' }">{{ row.stats['K/D'] }}</td>
+                        <td class="center" :class="{ 'highlight': sortBy == 'Kills' }">{{ row.stats['Kills'] }}</td>
+                        <td class="center" :class="{ 'highlight': sortBy == 'Deaths' }">{{ row.stats['Deaths'] }}</td>
+                        <td class="center" :class="{ 'highlight': sortBy == 'Score' }">{{ row.stats['Score'] }}</td>
+                        <td class="center" :class="{ 'highlight': sortBy == 'Headshots' }">{{ row.stats['Headshots'] }}</td>
+                        <td class="center" :class="{ 'highlight': sortBy == 'Assists' }">{{ row.stats['Assists'] }}</td>
+                        <td class="center" :class="{ 'highlight': sortBy == 'Executions' }">{{ row.stats['Executions'] }}</td>
+                        <td class="center" :class="{ 'highlight': sortBy == 'Vehicles Destroyed' }">{{ row.stats['Vehicles Destroyed'] }}</td>
+                        <td class="center" :class="{ 'highlight': sortBy == 'Team Wipes' }">{{ row.stats['Team Wipes'] }}</td>
+                        <td class="center" :class="{ 'highlight': sortBy == 'Total XP' }">{{ row.stats['Total XP'] }}</td>
+                        <td class="center" :class="{ 'highlight': sortBy == 'Time Played' }">{{ row.stats['Time Played'] | timePlayedLimit }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.15/lodash.min.js"></script>
+        <script src="scripts.js"></script>
+    </body>
+</html>

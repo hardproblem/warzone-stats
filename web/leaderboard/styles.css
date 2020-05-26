@@ -1,0 +1,107 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto&display=swap');
+
+body {
+    margin: 24px;
+}
+
+h1 {
+    margin: 0;
+    padding: 0;
+    font-family: 'Bebas Neue';
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header .social img {
+    height: 36px;
+}
+
+.center {
+    text-align: center;;
+}
+
+.right {
+    text-align: right;
+}
+
+.flex {
+    display: flex;
+}
+
+.flex-v-center {
+    align-items: center;
+}
+
+#leaderboard {
+    background: #ccc;
+    margin: 24px 0px;
+    padding: 12px;
+}
+
+#leaderboard h1 {
+    font-size: 42px;
+}
+
+#leaderboard select {
+    padding: 4px;
+    margin: 12px 0px;
+}
+
+#leaderboard table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+#leaderboard table th {
+    font-family: 'Bebas Neue';
+    padding: 4px;
+    font-size: 18px;
+
+    border-left: solid 1px #ccc;
+    color: white;
+    background: black;
+}
+
+#leaderboard table thead > tr {
+    position: sticky;
+    top: 0;
+    cursor: pointer;
+}
+
+#leaderboard table thead th:hover {
+    background: gold;
+}
+
+#leaderboard table td {
+    font-family: 'Roboto';
+    padding: 4px;
+    vertical-align: middle;
+    font-size: 14px;
+}
+
+.table-row-move {
+    transition: transform 1s;
+}
+
+#leaderboard table tr:nth-child(2n+1) {
+    background: #f0f0f0;
+}
+
+#leaderboard table td.highlight,
+#leaderboard table th.highlight {
+    background: gold;
+}
+
+#leaderboard table .platform-icon > svg {
+    width: 20px;
+    height: 20px;
+    margin-right: 6px;
+    fill: black;
+    position: relative;
+    top: 2px;
+}
