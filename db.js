@@ -55,7 +55,7 @@ async function addUserToChannel(channelId, username, platform) {
 async function removeUserFromChannel(channelId, username, platform) {
     await _db.collection('channels').updateOne({ channelId: channelId }, {
         $pull: {
-            users: { username: username, platform: platform }
+            users: { username: new RegExp(username, 'i'), platform: platform }
         }
     });
 }
