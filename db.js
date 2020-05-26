@@ -1,6 +1,7 @@
 module.exports = {
     addUserToChannel,
     removeUserFromChannel,
+    getUserFromChannel,
     scheduleLeaderboard,
     isLeaderboardEnabled,
     unscheduleLeaderboard,
@@ -52,10 +53,27 @@ async function addUserToChannel(channelId, username, platform) {
     });
 }
 
+async function getUserFromChannel(channelId, username, platform) {
+    let r = await _db.collection('channels')
+        .findOne({ 
+            channelId: channelId,
+            users: {
+                $elemMatch: {
+                    username: new RegExp(username, 'i'),
+                    platform: platform
+                }
+            }
+        }, {
+            // only select matching user
+            projection: {'users.$': 1}
+        });
+    return r ? r.users[0] : null;
+}
+
 async function removeUserFromChannel(channelId, username, platform) {
     await _db.collection('channels').updateOne({ channelId: channelId }, {
         $pull: {
-            users: { username: new RegExp(username, 'i'), platform: platform }
+            users: { username: username, platform: platform }
         }
     });
 }

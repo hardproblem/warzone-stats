@@ -2,7 +2,7 @@ module.exports = controller;
 
 const db = require('./db');
 const { sendStats } = require('./stats');
-const { playerExists } = require('./cod-api');
+const { getPlayerProfile } = require('./cod-api');
 const util = require('./util');
 const leaderboard = require('./leaderboard');
 
@@ -114,18 +114,23 @@ async function allStats(msg) {
 
 async function getUsers(msg) {
     let users = await db.getAllUsers(msg.channel.id);
-    users = users.map(x => `${util.escapeMarkdown(x.username)} (${x.platform})`);
-    msg.reply(`\nRegistered users:\n${users.join('\n')}`);
+    if (users.length > 0) {
+        users = users.map(x => `${util.escapeMarkdown(x.username)} (${x.platform})`);
+        msg.reply(`\nRegistered users:\n${users.join('\n')}`);    
+    } else {
+        msg.reply('No users have been registered yet.');
+    }
 }
 
 async function registerUser(msg) {
     let tokens = util.tokenize(msg.content);
     let username = tokens[3];
     let platform = tokens[2];
+    let player = await getPlayerProfile(platform, username);
 
-    if (await playerExists(platform, username)) {
-        await db.addUserToChannel(msg.channel.id, username, platform);
-        msg.reply(`**${username}** (${platform}) has been registered!`);        
+    if (player) {
+        await db.addUserToChannel(msg.channel.id, player.username, player.platform);
+        msg.reply(`**${player.username}** (${player.platform}) has been registered!`);        
     } else {
         msg.reply(`**${username}** (${platform}) does not exist!`);    
     }
@@ -136,8 +141,15 @@ async function unregisterUser(msg) {
     let username = tokens[3];
     let platform = tokens[2];
 
-    await db.removeUserFromChannel(msg.channel.id, username, platform);
-    msg.reply(`**${util.escapeMarkdown(username)}** (${platform}) has been unregistered!`);
+    let player = await db.getUserFromChannel(msg.channel.id, username, platform)
+
+    if (player) {
+        await db.removeUserFromChannel(msg.channel.id, player.username, player.platform);
+        msg.reply(`**${util.escapeMarkdown(player.username)}** (${player.platform}) has been unregistered!`);            
+    } else {
+        msg.reply(`**${util.escapeMarkdown(username)}** (${platform}) has not been registered!`); 
+    }
+
 }
 
 async function singleStats(msg) {

@@ -1,6 +1,6 @@
 module.exports = {
     getMatches,
-    playerExists
+    getPlayerProfile
 };
 
 const moment = require('moment');
@@ -15,13 +15,17 @@ async function request(url) {
         },
         "method": "GET",
         "mode": "cors"
-    });
+    }).then(res => res.json());
 }
 
-async function playerExists(platform, username) {
+async function getPlayerProfile(platform, username) {
     let url = `https://api.tracker.gg/api/v2/warzone/standard/profile/${platform}/${encodeURIComponent(username)}`;
     let res = await request(url);
-    return res.ok;
+    return res.errors ? null : 
+        {
+            username: res.data.platformInfo.platformUserIdentifier,
+            platform: res.data.platformInfo.platformSlug
+        };
 }
 
 async function getMatches(platform, username, start, end) {
@@ -34,7 +38,7 @@ async function getMatches(platform, username, start, end) {
 
         // get matches from tracker.gg api
         let url = `https://api.tracker.gg/api/v1/warzone/matches/${platform}/${encodeURIComponent(username)}?type=wz&next=${next}`;
-        let res = await request(url).then(r => r.json());
+        let res = await request(url);
 
         if (res.errors) {
             // return recentMatches if previous calls were successful
