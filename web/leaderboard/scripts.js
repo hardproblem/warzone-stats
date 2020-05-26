@@ -6,7 +6,9 @@ new Vue({
         timestamps: [],
         selectedTimestamp: null,
         stats: {},
-        sortBy: 'K/D'
+        sortBy: 'K/D',
+        desc: true,
+        filter: ''
     },
     methods: {
         init: async function() {
@@ -30,14 +32,12 @@ new Vue({
         },
         fetchStats: async function(timestamp) {
             if (!timestamp) {
-                return;
+                // return;
             }
             let res = await fetch(`/api/getStats?channelId=${this.channelId}&timestamp=${timestamp}`);
             if (res.ok) {
                 Vue.set(this.stats, timestamp, await res.json());
-                for (let i = 0; i < this.stats[timestamp].length; i++) {
-                    this.stats[timestamp][i].stats.Kills = i * 10;
-                }
+                Vue.set(this.stats, timestamp, getRawData());                
             }
         },
         getTimestamps: async function() {
@@ -58,10 +58,12 @@ new Vue({
         sort: function(f) {
             let board = this.stats[this.selectedTimestamp];
             if (this.sortBy == f) {
+                this.desc = !this.desc;
                 Vue.set(this.stats, this.selectedTimestamp, board.reverse()); 
             } else {
                 Vue.set(this.stats, this.selectedTimestamp, _.sortBy(board, `stats.${f}`).reverse()); 
                 this.sortBy = f;
+                this.desc = true;
             }
         }
     },
@@ -77,6 +79,9 @@ new Vue({
                     pos++;
                 }
                 board[i].position = pos;
+            }
+            if (this.filter) {
+                board = _.filter(board, x => JSON.stringify(x).includes(this.filter));
             }
             return board;
         }
@@ -95,3 +100,110 @@ Vue.filter('timePlayedLimit', function(v) {
 Vue.filter('time', function(v) {
     return moment(v).format('hh:mma DD MMM, YYYY')
 });
+
+
+function getRawData() {
+    return [{
+        "username": "m_haroon2305",
+        "platform": "psn",
+        "stats": {
+            "Matches": 0,
+            "Kills": 0,
+            "Deaths": 0,
+            "Score": 0,
+            "Time Played": 10000,
+            "Headshots": 0,
+            "Assists": 0,
+            "Executions": 0,
+            "Vehicles Destroyed": 0,
+            "Team Wipes": 0,
+            "Total XP": 0,
+            "K/D": "NaN"
+        }
+    }, {
+        "username": "saadmujeeb_24",
+        "platform": "psn",
+        "stats": {
+            "Matches": 5,
+            "Kills": 5,
+            "Deaths": 8,
+            "Score": 10750,
+            "Time Played": 20000,
+            "Headshots": 2,
+            "Assists": 0,
+            "Executions": 0,
+            "Vehicles Destroyed": 0,
+            "Team Wipes": 2,
+            "Total XP": 48964,
+            "K/D": "0.63"
+        }
+    }, {
+        "username": "botmun_",
+        "platform": "psn",
+        "stats": {
+            "Matches": 2,
+            "Kills": 2,
+            "Deaths": 3,
+            "Score": 14225,
+            "Time Played": 30000,
+            "Headshots": 0,
+            "Assists": 0,
+            "Executions": 0,
+            "Vehicles Destroyed": 0,
+            "Team Wipes": 1,
+            "Total XP": 43186,
+            "K/D": "0.67"
+        }
+    }, {
+        "username": "bouncybear#2283071",
+        "platform": "atvi",
+        "stats": {
+            "Matches": 5,
+            "Kills": 9,
+            "Deaths": 6,
+            "Score": 10675,
+            "Time Played": 400000,
+            "Headshots": 1,
+            "Assists": 0,
+            "Executions": 0,
+            "Vehicles Destroyed": 0,
+            "Team Wipes": 2,
+            "Total XP": 49506,
+            "K/D": "1.50"
+        }
+    }, {
+        "username": "mango_man7",
+        "platform": "psn",
+        "stats": {
+            "Matches": 2,
+            "Kills": 6,
+            "Deaths": 4,
+            "Score": 10525,
+            "Time Played": 124151,
+            "Headshots": 1,
+            "Assists": 0,
+            "Executions": 0,
+            "Vehicles Destroyed": 0,
+            "Team Wipes": 1,
+            "Total XP": 39830,
+            "K/D": "1.50"
+        }
+    }, {
+        "username": "moyx",
+        "platform": "atvi",
+        "stats": {
+            "Matches": 16,
+            "Kills": 79,
+            "Deaths": 30,
+            "Score": 93500,
+            "Time Played": 12351,
+            "Headshots": 30,
+            "Assists": 0,
+            "Executions": 2,
+            "Vehicles Destroyed": 1,
+            "Team Wipes": 15,
+            "Total XP": 249230,
+            "K/D": "2.63"
+        }
+    }];
+}

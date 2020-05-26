@@ -2,6 +2,7 @@
 
 body {
     margin: 24px;
+    background: #3973ac;
 }
 
 h1 {
@@ -14,10 +15,14 @@ h1 {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    border-radius: 8px;
+    padding: 16px 24px;
+    background: #ccccff;
 }
 
 .header .social img {
     height: 36px;
+    margin: 0px 4px;
 }
 
 .center {
@@ -36,19 +41,25 @@ h1 {
     align-items: center;
 }
 
-#leaderboard {
-    background: #ccc;
-    margin: 24px 0px;
-    padding: 12px;
+.leaderboard-title {
+    color: white;
+    font-size: 42px;
+    margin-top: 36px;
 }
 
-#leaderboard h1 {
-    font-size: 42px;
+#leaderboard {
+    margin: 24px 0px;
+    padding: 12px;
+    color: white;
+    background: #222;
+    min-width: 1000px;
+    border-radius: 8px;
 }
 
 #leaderboard select {
     padding: 4px;
-    margin: 12px 0px;
+    background: black;
+    border: none;
 }
 
 #leaderboard table {
@@ -62,7 +73,6 @@ h1 {
     padding: 4px;
     font-size: 18px;
 
-    border-left: solid 1px #ccc;
     color: white;
     background: black;
 }
@@ -70,11 +80,15 @@ h1 {
 #leaderboard table thead > tr {
     position: sticky;
     top: 0;
-    cursor: pointer;
 }
 
-#leaderboard table thead th:hover {
-    background: gold;
+#leaderboard th > span {
+    display: block;
+}
+
+#leaderboard table thead th.hoverable:hover {
+    background: #cc9966;
+    cursor: pointer;
 }
 
 #leaderboard table td {
@@ -82,26 +96,77 @@ h1 {
     padding: 4px;
     vertical-align: middle;
     font-size: 14px;
+    color: #333;
 }
 
 .table-row-move {
     transition: transform 1s;
 }
 
-#leaderboard table tr:nth-child(2n+1) {
-    background: #f0f0f0;
+.table-row-enter-active, .table-row-leave-active {
+    transition: all 1s;
+}
+
+.table-row-enter {
+    transform: translateY(-30px);
+    opacity: 1;
+}
+
+.table-row-leave-to {
+    transform: translateY(30px);
+    opacity: 0;
+}
+
+#leaderboard table tbody > tr {
+    background: #333;
+}
+
+#leaderboard table tbody > tr:hover {
+    background: #555;
+}
+
+#leaderboard table tbody td {
+    color: white;
 }
 
 #leaderboard table td.highlight,
 #leaderboard table th.highlight {
-    background: gold;
+    background: #cc9966;
+}
+
+#leaderboard table td.highlight {
+    font-weight: bold;
+    color: black;
 }
 
 #leaderboard table .platform-icon > svg {
     width: 20px;
     height: 20px;
     margin-right: 6px;
-    fill: black;
+    fill: white;
     position: relative;
     top: 2px;
+}
+
+#leaderboard .control-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* background: #333; */
+    padding: 8px 24px;
+}
+
+#leaderboard .control-panel > input {
+    background: transparent;
+    border: none;
+    color: white;
+    width: 40%;
+    font-size: 18px;
+    font-family: 'Roboto';
+}
+
+.sort-arrow {
+    font-size: 12px;
+    vertical-align: middle;
+    margin-left: 4px;
 }

@@ -8,15 +8,16 @@
         <div class="header">
             <h1>Warzone Stats Bot</h1>
             <div class="social">
+                <a href="https://discordapp.com/oauth2/authorize?scope=bot&client_id=711383069160112128" target='_blank'>
+                    <img src="/assets/Discord-Logo-Black.png" alt="Discord"/></a>
                 <a href="https://github.com/haroon96/cod-daily-stats" target='_blank'>
-                    <img src="/assets/GitHub-Mark-64px.png" alt="GitHub">
-                </a>
+                    <img src="/assets/GitHub-Mark-64px.png" alt="GitHub"/></a>
             </div>
         </div>
-
+        <h1 class="center leaderboard-title">Leaderboard</h1>
         <div id="leaderboard" class="leaderboard">
-            <h1 class="center">Leaderboard</h1>
-            <div class="right">
+            <div class="control-panel">
+                <input v-model="filter" placeholder="Search">
                 <select>
                     <option v-for="ts in timestamps">{{ ts | time }}</option>
                 </select>    
@@ -24,20 +25,58 @@
             <table>
                 <thead>
                     <tr>
-                        <th style="width: 2%" class="center">#</th>
-                        <th style="width: 20%">Player</th>
-                        <th :class="{ 'highlight': sortBy == 'Matches' }" @click="sort('Matches')" style="width: 5%" class="center">Matches</th>
-                        <th :class="{ 'highlight': sortBy == 'K/D' }" @click="sort('K/D')" style="width: 5%" class="center">K/D</th>
-                        <th :class="{ 'highlight': sortBy == 'Kills' }" @click="sort('Kills')" style="width: 5%" class="center">Kills</th>
-                        <th :class="{ 'highlight': sortBy == 'Deaths' }" @click="sort('Deaths')" style="width: 5%" class="center">Deaths</th>
-                        <th :class="{ 'highlight': sortBy == 'Score' }" @click="sort('Score')" style="width: 5%" class="center">Score</th>
-                        <th :class="{ 'highlight': sortBy == 'Headshots' }" @click="sort('Headshots')" style="width: 5%" class="center">Headshots</th>
-                        <th :class="{ 'highlight': sortBy == 'Assists' }" @click="sort('Assists')" style="width: 5%" class="center">Assists</th>
-                        <th :class="{ 'highlight': sortBy == 'Executions' }" @click="sort('Executions')" style="width: 5%" class="center">Executions</th>
-                        <th :class="{ 'highlight': sortBy == 'Vehicles Destroyed' }" @click="sort('Vehicles Destroyed')" style="width: 5%" class="center" title="Vehicles Destroyed">V/D</th>
-                        <th :class="{ 'highlight': sortBy == 'Team Wipes' }" @click="sort('Team Wipes')" style="width: 5%" class="center" title="Team Wipes">T/W</th>
-                        <th :class="{ 'highlight': sortBy == 'Total XP' }" @click="sort('Total XP')" style="width: 5%" class="center">XP</th>
-                        <th :class="{ 'highlight': sortBy == 'Time Played' }" @click="sort('Time Played')" style="width: 5%" class="center">Time</th>
+                        <th style="width:2%" class="center">#</th>
+                        <th style="width:20%">
+                            <span>Player</span>
+                        </th>
+                        <th style="width:5%" :class="{ 'highlight': sortBy == 'Matches' }" @click="sort('Matches')" class="center hoverable">
+                            <span>Matches</span>
+                            <span class="sort-arrow">{{ sortBy == 'Matches' ? ( desc ? '▼' : '▲') : '' }}</span>
+                        </th>
+                        <th style="width:5%" :class="{ 'highlight': sortBy == 'K/D' }" @click="sort('K/D')" class="center hoverable">
+                            <span>K/D</span>
+                            <span class="sort-arrow">{{ sortBy == 'K/D' ? ( desc ? '▼' : '▲') : '' }}</span>
+                        </th>
+                        <th style="width:5%" :class="{ 'highlight': sortBy == 'Kills' }" @click="sort('Kills')" class="center hoverable">
+                            <span>Kills</span>
+                            <span class="sort-arrow">{{ sortBy == 'Kills' ? ( desc ? '▼' : '▲') : '' }}</span>
+                        </th>
+                        <th style="width:5%" :class="{ 'highlight': sortBy == 'Deaths' }" @click="sort('Deaths')" class="center hoverable">
+                            <span>Deaths</span>
+                            <span class="sort-arrow">{{ sortBy == 'Deaths' ? ( desc ? '▼' : '▲') : '' }}</span>
+                        </th>
+                        <th style="width:5%" :class="{ 'highlight': sortBy == 'Score' }" @click="sort('Score')" class="center hoverable">
+                            <span>Score</span>
+                            <span class="sort-arrow">{{ sortBy == 'Score' ? ( desc ? '▼' : '▲') : '' }}</span>
+                        </th>
+                        <th style="width:5%" :class="{ 'highlight': sortBy == 'Headshots' }" @click="sort('Headshots')" class="center hoverable">
+                            <span>Headshots</span>
+                            <span class="sort-arrow">{{ sortBy == 'Headshots' ? ( desc ? '▼' : '▲') : '' }}</span>
+                        </th>
+                        <th style="width:5%" :class="{ 'highlight': sortBy == 'Assists' }" @click="sort('Assists')" class="center hoverable">
+                            <span>Assists</span>
+                            <span class="sort-arrow">{{ sortBy == 'Assists' ? ( desc ? '▼' : '▲') : '' }}</span>
+                        </th>
+                        <th style="width:5%" :class="{ 'highlight': sortBy == 'Executions' }" @click="sort('Executions')" class="center hoverable">
+                            <span>Executions</span>
+                            <span class="sort-arrow">{{ sortBy == 'Executions' ? ( desc ? '▼' : '▲') : '' }}</span>
+                        </th>
+                        <th style="width:5%" :class="{ 'highlight': sortBy == 'Vehicles Destroyed' }" @click="sort('Vehicles Destroyed')" class="center hoverable" title="Vehicles Destroyed">
+                            <span>V/D</span>
+                            <span class="sort-arrow">{{ sortBy == 'Vehicles Destroyed' ? ( desc ? '▼' : '▲') : '' }}</span>
+                        </th>
+                        <th style="width:5%" :class="{ 'highlight': sortBy == 'Team Wipes' }" @click="sort('Team Wipes')" class="center hoverable" title="Team Wipes">
+                            <span>T/W</span>
+                            <span class="sort-arrow">{{ sortBy == 'Team Wipes' ? ( desc ? '▼' : '▲') : '' }}</span>
+                        </th>
+                        <th style="width:5%" :class="{ 'highlight': sortBy == 'Total XP' }" @click="sort('Total XP')" class="center hoverable">
+                            <span>XP</span>
+                            <span class="sort-arrow">{{ sortBy == 'Total XP' ? ( desc ? '▼' : '▲') : '' }}</span>
+                        </th>
+                        <th style="width:5%" :class="{ 'highlight': sortBy == 'Time Played' }" @click="sort('Time Played')" class="center hoverable">
+                            <span>Time</span>
+                            <span class="sort-arrow">{{ sortBy == 'Time Played' ? ( desc ? '▼' : '▲') : '' }}</span>
+                        </th>
                     </tr>
                 </thead>
                 <tbody name="table-row" is="transition-group">
