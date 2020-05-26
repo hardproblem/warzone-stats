@@ -36,7 +36,7 @@ function calculateStats(matches) {
         'Team Wipes': aggregate(stats, 'objectiveTeamWiped'),
         'Total XP': aggregate(stats, 'totalXp')
     }
-    statValues['K/D'] = statValues.Kills + 1 / statValues.Deaths + 1;
+    statValues['K/D'] = (statValues.Kills + 1) / (statValues.Deaths + 1);
     statValues['K/D'] = statValues['K/D'].toFixed(2);
 
     return statValues;

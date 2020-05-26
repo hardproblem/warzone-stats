@@ -18,14 +18,14 @@
             <h1 class="center">Leaderboard</h1>
             <div class="right">
                 <select>
-                    <option v-for="ts in timestamps">{{ ts }}</option>
+                    <option v-for="ts in timestamps">{{ ts | time }}</option>
                 </select>    
             </div>
             <table>
                 <thead>
                     <tr>
                         <th style="width: 2%" class="center">#</th>
-                        <th style="width: 20%" class="center">Player</th>
+                        <th style="width: 20%">Player</th>
                         <th :class="{ 'highlight': sortBy == 'Matches' }" @click="sort('Matches')" style="width: 5%" class="center">Matches</th>
                         <th :class="{ 'highlight': sortBy == 'K/D' }" @click="sort('K/D')" style="width: 5%" class="center">K/D</th>
                         <th :class="{ 'highlight': sortBy == 'Kills' }" @click="sort('Kills')" style="width: 5%" class="center">Kills</th>
@@ -41,8 +41,8 @@
                     </tr>
                 </thead>
                 <tbody name="table-row" is="transition-group">
-                    <tr v-for="(row, index) in filteredStats" :key="index">
-                        <td class="center">{{ index + 1 }}</td>
+                    <tr v-for="row in filteredStats" :key="row.username">
+                        <td class="center">{{ row.position }}</td>
                         <td>
                             <div class="flex flex-v-center">
                                 <span v-html="getIcon(row.platform)" class="platform-icon"></span>
@@ -67,6 +67,8 @@
         </div>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.15/lodash.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.26.0/moment.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-duration-format/2.3.2/moment-duration-format.min.js"></script>
         <script src="scripts.js"></script>
     </body>
 </html>

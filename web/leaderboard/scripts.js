@@ -6,8 +6,7 @@ new Vue({
         timestamps: [],
         selectedTimestamp: null,
         stats: {},
-        sortBy: 'K/D',
-        desc: true
+        sortBy: 'K/D'
     },
     methods: {
         init: async function() {
@@ -36,6 +35,9 @@ new Vue({
             let res = await fetch(`/api/getStats?channelId=${this.channelId}&timestamp=${timestamp}`);
             if (res.ok) {
                 Vue.set(this.stats, timestamp, await res.json());
+                for (let i = 0; i < this.stats[timestamp].length; i++) {
+                    this.stats[timestamp][i].stats.Kills = i * 10;
+                }
             }
         },
         getTimestamps: async function() {
@@ -54,21 +56,29 @@ new Vue({
             } 
         },
         sort: function(f) {
+            let board = this.stats[this.selectedTimestamp];
             if (this.sortBy == f) {
-                this.desc = !this.desc;
+                Vue.set(this.stats, this.selectedTimestamp, board.reverse()); 
             } else {
-                this.desc = true;
+                Vue.set(this.stats, this.selectedTimestamp, _.sortBy(board, `stats.${f}`).reverse()); 
                 this.sortBy = f;
             }
         }
     },
     computed: {
         filteredStats: function() {
-            let chain = _.chain(this.stats[this.selectedTimestamp]).sortBy(`stats.${this.sortBy}`);
-            if (this.desc) {
-                chain = chain.reverse();
+            let board = this.stats[this.selectedTimestamp];
+            if (!board) { 
+                return [];
             }
-            return chain.value();
+            let pos = 1;
+            for (let i = 0; i < board.length; ++i) {
+                if (i > 0 && board[i].stats[this.sortBy] != board[i - 1].stats[this.sortBy]) {
+                    pos++;
+                }
+                board[i].position = pos;
+            }
+            return board;
         }
     },
     created: function() {
@@ -77,5 +87,11 @@ new Vue({
 });
 
 Vue.filter('timePlayedLimit', function(v) {
-    return v.split(/ +/g).slice(0, 2).join(' ');
+    return moment.duration(v, 'seconds')
+        .format("w[w] d[d] h[h] m[m] s[s]", {trim: "both mid"})
+        .split(/ +/g).slice(0, 2).join(' ');
+});
+
+Vue.filter('time', function(v) {
+    return moment(v).format('hh:mma DD MMM, YYYY')
 });
