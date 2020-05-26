@@ -67,7 +67,7 @@ function sendStats(u, tryn, msgObj, duration, err='') {
         try {
             // try and send stats
             let stats = await generateStats(u.platform, u.username, start, end);
-            let m = util.pprint(util.escapeMarkdown(u.username), stats, duration);
+            let m = util.pprint(util.escapeMarkdown(u.username), u.platform, stats, duration);
 
             // edit original message
             await msgObj.edit(m);

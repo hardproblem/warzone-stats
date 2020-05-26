@@ -125,9 +125,9 @@ async function registerUser(msg) {
 
     if (await playerExists(platform, username)) {
         await db.addUserToChannel(msg.channel.id, username, platform);
-        msg.reply(`**${username}** *(${platform})* has been registered!`);        
+        msg.reply(`**${username}** (${platform}) has been registered!`);        
     } else {
-        msg.reply(`**${username}** *(${platform})* does not exist!`);    
+        msg.reply(`**${username}** (${platform}) does not exist!`);    
     }
 }
 
@@ -137,7 +137,7 @@ async function unregisterUser(msg) {
     let platform = tokens[2];
 
     await db.removeUserFromChannel(msg.channel.id, username, platform);
-    msg.reply(`**${util.escapeMarkdown(username)}** *(${platform})* has been unregistered!`);
+    msg.reply(`**${util.escapeMarkdown(username)}** (${platform}) has been unregistered!`);
 }
 
 async function singleStats(msg) {

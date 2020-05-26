@@ -15,8 +15,8 @@ function tokenize(msg) {
     return msg.toLowerCase().split(/ +/);
 }
 
-function pprint(username, stats, duration) {
-    let msg = `Stats for **${username}** over the last ${duration.value} ${duration.unit}(s)\n`;
+function pprint(username, platform, stats, duration) {
+    let msg = `Stats for **${username}** (${platform}) over the last ${duration.value} ${duration.unit}(s)\n`;
     for (let stat in stats) {
         msg += `> ${stat}: ${stats[stat]}\n`;
     }
