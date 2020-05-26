@@ -10,15 +10,25 @@ module.exports = {
 };
 
 const { parseExpression } = require('cron-parser');
+const moment = require('moment');
+// load moment-duration
+require("moment-duration-format");
+
 
 function tokenize(msg) {
     return msg.toLowerCase().split(/ +/);
 }
 
 function pprint(username, platform, stats, duration) {
+
     let msg = `Stats for **${username}** (${platform}) over the last ${duration.value} ${duration.unit}(s)\n`;
     for (let stat in stats) {
-        msg += `> ${stat}: ${stats[stat]}\n`;
+        if (!['Time Played'].includes(stat)) {
+            msg += `> ${stat}: ${stats[stat]}\n`;
+        } else {
+            let val = moment.duration(stats[stat], 'seconds').format("w[w] d[d] h[h] m[m] s[s]", {trim: "both mid"});
+            msg += `> ${stat}: ${val}\n`
+        }
     }
     return msg;
 }

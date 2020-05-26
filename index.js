@@ -11,7 +11,7 @@ init();
 async function init() {
     await db.init();
     await leaderboard.init(bot);
-    await initBot();    
+    await initBot();
 }
 
 async function initBot() {

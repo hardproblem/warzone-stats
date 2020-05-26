@@ -10,6 +10,7 @@ module.exports = {
     addStatsToSnapshot,
     addSnapshot,
     getSnapshotTimes,
+    getSnapshotStats,
     getLastSnapshotTime,
     init
 };
@@ -54,19 +55,18 @@ async function addUserToChannel(channelId, username, platform) {
 }
 
 async function getUserFromChannel(channelId, username, platform) {
-    let r = await _db.collection('channels')
-        .findOne({ 
-            channelId: channelId,
-            users: {
-                $elemMatch: {
-                    username: new RegExp(username, 'i'),
-                    platform: platform
-                }
+    let r = await _db.collection('channels').findOne({ 
+        channelId: channelId,
+        users: {
+            $elemMatch: {
+                username: new RegExp(username, 'i'),
+                platform: platform
             }
-        }, {
-            // only select matching user
-            projection: {'users.$': 1}
-        });
+        }
+    }, {
+        // only select matching user
+        projection: {'users.$': 1}
+    });
     return r ? r.users[0] : null;
 }
 
@@ -151,6 +151,16 @@ async function getSnapshotTimes(channelId) {
 async function getLastSnapshotTime(channelId) {
     let timestamps = await getSnapshotTimes(channelId);
     return timestamps.reduce(function (a, b) { return new Date(a) > new Date(b) ? a : b; }, null);
+}
+
+async function getSnapshotStats(channelId, timestamp) {
+    let stats = await _db.collection('leaderboards').findOne({
+        channelId: channelId,
+        'snapshots.timestamp': timestamp
+    }, {
+        projection: { 'snapshots.$.users': 1 }
+    });
+    return stats ? stats.snapshots[0].users : null;
 }
 
 async function unscheduleLeaderboard(channelId) {

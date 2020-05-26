@@ -7,9 +7,6 @@ const { getMatches } = require('./cod-api');
 const util = require('./util');
 
 const moment = require('moment');
-// load moment-duration
-require("moment-duration-format");
-
 
 function aggregate(stats, field) {
     try {
@@ -31,7 +28,7 @@ function calculateStats(matches) {
         'Kills': aggregate(stats, 'kills'),
         'Deaths': aggregate(stats, 'deaths'),
         'Score': aggregate(stats, 'score'),
-        'Time Played': moment.duration(aggregate(stats, 'timePlayed'), 'seconds').format("w[w] d[d] h[h] m[m] s[s]", {trim: "both mid"}),
+        'Time Played': aggregate(stats, 'timePlayed'),
         'Headshots': aggregate(stats, 'headshots'),
         'Assists': aggregate(stats, 'assists'),
         'Executions': aggregate(stats, 'executions'),
