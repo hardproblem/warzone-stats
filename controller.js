@@ -162,6 +162,11 @@ async function enableLeaderboard(msg) {
             return;
         }
 
+        if (await db.isLeaderboardEnabled(msg.channel.id)) {
+            msg.reply('A leaderboard has already been enabled! Please disable it first.\n**NOTE:** Disabling a leaderboard deletes all saved stats data!');
+            return;
+        }
+
         // schedule message
         await leaderboard.enable(msg.channel.id, cron);
         let nextHit = util.nextCronHit(cron);

@@ -2,6 +2,7 @@ module.exports = {
     addUserToChannel,
     removeUserFromChannel,
     scheduleLeaderboard,
+    isLeaderboardEnabled,
     unscheduleLeaderboard,
     getAllUsers,
     getAllLeaderboardSchedules,
@@ -75,10 +76,15 @@ async function scheduleLeaderboard(channelId, cron) {
     });
 }
 
-async function addSnapshot(channelId, timestamp, users) {
+async function isLeaderboardEnabled(channelId) {
+    let ld = await _db.collection('leaderboards').findOne({ channelId: channelId, cron: { $ne: null } });
+    return ld ? true : false;
+}
+
+async function addSnapshot(channelId, timestamp, startTimestamp, users) {
     await _db.collection('leaderboards').updateOne({ channelId: channelId }, {
         $push: {
-            snapshots: { timestamp: timestamp, users: users}
+            snapshots: { timestamp: timestamp, startTimestamp: startTimestamp, users: users}
         }
     });
  }

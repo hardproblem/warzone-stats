@@ -47,7 +47,10 @@ function parseDuration(d) {
 }
 
 function prevCronHit(exp) {
-    return parseExpression(exp).prev()._date;
+    let cp = parseExpression(exp);
+    // need to go two steps back to avoid race conditions
+    cp.prev();
+    return cp.prev()._date;
 }
 
 function nextCronHit(exp) {

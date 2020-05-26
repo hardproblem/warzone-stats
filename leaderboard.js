@@ -37,16 +37,18 @@ function createJob(channelId, cron) {
     let job = scheduleJob(cron, async() => {
         let users = await db.getAllUsers(channelId);
         let timestamp = moment();
-        let duration = await getDuration(channelId, cron, timestamp);
+        let lastTimestamp = await getLastTimestamp(channelId, cron);
 
         let channel = client.channels.cache.get(channelId);
         
         // send end of season message
         channel.send(`**Season finished!**\nCollecting stats and generating the leaderboard now.\nView it here: https://cod-daily-stats.herokuapp.com/leaderboards/${channelId}`);
         // create a placeholder snapshot
-        await db.addSnapshot(channelId, timestamp.toISOString(), users);
+        await db.addSnapshot(channelId, timestamp.toISOString(), lastTimestamp.toISOString(), users);
         // fetch stats for all users and add to snapshot
-        await Promise.all(users.map(u => getStats(u.username, u.platform, duration, channelId, timestamp)));
+        for (let u of users) {
+            await getStats(u.username, u.platform, channelId, timestamp, lastTimestamp);
+        }
         // notify that all stats have been fetched
         channel.send(`Last season's leaderboard has finished generating! View it here: https://cod-daily-stats.herokuapp.com/leaderboards/${channelId}`);
     });
@@ -60,22 +62,22 @@ function cancelJob(channelId) {
     }
 }
 
-async function getDuration(channelId, cron, timestamp) {
+async function getLastTimestamp(channelId, cron) {
     let lastTimestamp = await db.getLastSnapshotTime(channelId);
     // if no snapshot exists, calculate time from when last cronjob would've hit
     if (!lastTimestamp) {
         lastTimestamp = prevCronHit(cron);
     }
-    return { value: timestamp.diff(lastTimestamp, 'hours'), unit: 'hour' };
+    return moment(lastTimestamp);
 }
 
-async function getStats(username, platform, duration, channelId, timestamp, tryn=0) {
+async function getStats(username, platform, channelId, timestamp, lastTimestamp, tryn=0) {
     // retry timeouts
     let tryWaits = new Array(3).fill([15000, 30000, 60000, 90000, 120000]).flat().sort((a, b) => a - b);
     let promise = async(res, rej) => {
         try {
             // fetch stats and snapshot
-            let data = await generateStats(platform, username, duration);
+            let data = await generateStats(platform, username, lastTimestamp, timestamp);
             await db.addStatsToSnapshot(channelId, username, platform, data, timestamp.toISOString());
             res();
         } catch (e) {
@@ -88,7 +90,7 @@ async function getStats(username, platform, duration, channelId, timestamp, tryn
                 // retry if some other error occured
                 setTimeout(async() => {
                     // recursive call the function again
-                    await getStats(username, platform, duration, channelId, timestamp, tryn + 1);
+                    await getStats(username, platform, channelId, timestamp, lastTimestamp, tryn + 1);
                     // call the original promise resolve
                     res();
                 }, timeout);
