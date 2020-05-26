@@ -121,6 +121,22 @@ h1 {
     background: #333;
 }
 
+#leaderboard table tbody > tr.top {
+    background: gold;
+}
+
+#leaderboard table tbody tr.top > td {
+    color: black;
+}
+
+#leaderboard table  tr.top .platform-icon > svg {
+    fill: black;
+}
+
+#leaderboard table tbody > tr.top:hover {
+    background: goldenrod;
+}
+
 #leaderboard table tbody > tr:hover {
     background: #555;
 }
@@ -134,9 +150,13 @@ h1 {
     background: #cc9966;
 }
 
+#leaderboard table th.highlight,
+#leaderboard table td.highlight {
+    color: black;
+}
+
 #leaderboard table td.highlight {
     font-weight: bold;
-    color: black;
 }
 
 #leaderboard table .platform-icon > svg {

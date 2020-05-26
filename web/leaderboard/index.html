@@ -80,7 +80,7 @@
                     </tr>
                 </thead>
                 <tbody name="table-row" is="transition-group">
-                    <tr v-for="row in filteredStats" :key="row.username">
+                    <tr v-for="row in filteredStats" :key="row.username" :class="{ 'top': row.position <= 3 }">
                         <td class="center">{{ row.position }}</td>
                         <td>
                             <div class="flex flex-v-center">
