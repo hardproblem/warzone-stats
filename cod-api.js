@@ -1,10 +1,38 @@
 module.exports = {
+<<<<<<< HEAD
     getMatches,
     getPlayerProfile
+=======
+    getPlayerProfile,
+    getRecentMatches
+>>>>>>> master
 };
 
 const moment = require('moment');
 const fetch = require('node-fetch');
+const brModeIds = ['br_87', 'br_88', 'br_25', 'br_89']; // solos, duos, trios, quads
+
+async function request(url) {
+    return await fetch(url, {
+        "credentials": "include",
+        "headers": {
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Language": "en"
+        },
+        "method": "GET",
+        "mode": "cors"
+    }).then(res => res.json());
+}
+
+async function getPlayerProfile(platform, username) {
+    let url = `https://api.tracker.gg/api/v2/warzone/standard/profile/${platform}/${encodeURIComponent(username)}`;
+    let res = await request(url);
+    return res.errors ? null : 
+        {
+            username: res.data.platformInfo.platformUserIdentifier,
+            platform: res.data.platformInfo.platformSlug
+        };
+}
 
 async function request(url) {
     return await fetch(url, {
@@ -54,7 +82,7 @@ async function getMatches(platform, username, start, end) {
         let matches = res.data.matches;
 
         // only select battle royale
-        matches = matches.filter(x => ['br_89', 'br_25'].includes(x.attributes.modeId));
+        matches = matches.filter(x => brModeIds.includes(x.attributes.modeId));
 
         // filter to only today's matches
         let filteredMatches = matches.filter(x => moment(x.metadata.timestamp).isAfter(start) && moment(x.metadata.timestamp).isBefore(end));
