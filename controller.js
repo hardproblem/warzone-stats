@@ -198,12 +198,14 @@ async function unscheduleStats(msg) {
 }
 
 async function help(msg) {
-    let help = '\n**Warzone Stats Guide:**\n';
+    let objectId = await db.getObjectId(msg.channel.id);
+    let help = ['**Warzone Stats Guide:**'];
     for (let cmd in commands) {
-        help += `\`${commands[cmd].syntax}\`: *${commands[cmd].help}*\n`;
+        help.push(`\`${commands[cmd].syntax}\`: *${commands[cmd].help}*`);
     }
-    help += 'For issues or feedback, feel free to report here https://github.com/Haroon96/warzone-stats/issues'
-    msg.reply(help);
+    help.push('For issues or feedback, feel free to report here https://github.com/Haroon96/warzone-stats/issues');
+    help.push(`http://203.101.178.74:8080/warzone-stats/manager?id=${objectId}`);
+    msg.reply(help.join('\n'));
 }
 
 async function teamSplit(msg) {

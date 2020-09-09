@@ -7,6 +7,7 @@ module.exports = {
     getAllUsers,
     getAllSchedules,
     getModeIds,
+    getObjectId,
     init
 };
 
@@ -92,6 +93,10 @@ async function unschedule(channelId) {
 
 async function getAllSchedules() {
     return await _db.collection('schedules').find({});
+}
+
+async function getObjectId(channelId) {
+    return await _db.collection('channels').findOne({ channelId })._id;
 }
 
 async function getModeIds(mode) {
