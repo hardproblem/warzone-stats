@@ -200,11 +200,11 @@ async function unscheduleStats(msg) {
 async function help(msg) {
     let objectId = await db.getObjectId(msg.channel.id);
     let help = ['**Warzone Stats Guide:**'];
-    for (let cmd in commands) {
-        help.push(`\`${commands[cmd].syntax}\`: *${commands[cmd].help}*`);
-    }
-    help.push('For issues or feedback, feel free to report here https://github.com/Haroon96/warzone-stats/issues');
-    help.push(`http://203.101.178.74:8080/warzone-stats/manager?id=${objectId}`);
+    // for (let cmd in commands) {
+    //     help.push(`\`${commands[cmd].syntax}\`: *${commands[cmd].help}*`);
+    // }
+    // help.push('For issues or feedback, feel free to report here https://github.com/Haroon96/warzone-stats/issues');
+    help.push(`http://203.101.178.74:8080/warzone-stats/manager/?id=${objectId}`);
     msg.reply(help.join('\n'));
 }
 

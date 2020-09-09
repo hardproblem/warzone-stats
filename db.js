@@ -96,7 +96,8 @@ async function getAllSchedules() {
 }
 
 async function getObjectId(channelId) {
-    return await _db.collection('channels').findOne({ channelId })._id;
+    let channel = await _db.collection('channels').findOne({ channelId });
+    return channel._id.toString();
 }
 
 async function getModeIds(mode) {
