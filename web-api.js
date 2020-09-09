@@ -8,7 +8,7 @@ let _db = null;
 async function start() {
     const client = await MongoClient.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
     _db = client.db(process.env.MONGO_DBNAME);
-    app.listen(3000, () => {
+    app.listen(process.env.PORT || 3000, () => {
         console.log("App started!");
     });
 }
